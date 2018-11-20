@@ -1,4 +1,24 @@
 import numpy as np
+# def interp(v,x,y):
+# 	xb=False
+# 	yb=False
+# 	if(np.ceil(x)-x<5e-2):
+# 		xb=True
+# 		x=int(np.ceil(x))
+# 	elif(x-np.floor(x)<5e-2):
+# 		xb=True
+# 		x=int(np.floor(x))
+# 	if(np.ceil(y)-y<5e-2):
+# 		yb=True
+# 		y=int(np.ceil(y))
+# 	elif(y-np.floor(y)<5e-2):
+# 		yb=True
+# 		y=int(np.floor(y))
+# 	if(yb&&xb):
+# 		return v[x,y]
+# 	elif(yb):
+# 		xc=(np.ceil(x)-x)
+# 		return (xc*v[int(np.floor(x))])
 def TransformDeriv(T,u,v,la,lb,CovInvU,CovInvV):
 	Va=np.zeros((len(la),1))
 	Vb=np.zeros((1,len(lb)))
@@ -29,7 +49,7 @@ u=v*2
 # print(v)
 la=[[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2]]
 lb=[[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0]]
-T=np.zeros(10)
+T=np.zeros(9).reshape(3,3)
 print(len(lb))
 for x in range(1,1000):
 	print(x)
