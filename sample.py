@@ -70,20 +70,25 @@ def get_transform( u1, v1, n, t, alp) :
       z = P2.shape[1]
     P2 = P2[:,:t] 
     L2 = L2[:,:t]
-    if i%50==49 :
+    if i==999:
       # print(T)
       T1 = np.linalg.inv(T)
-      x = T1[:,0]@np.tile(range(v.shape[1]), v.shape[0], 1).flatten() 
-      y = T1[:,1]@np.tile(np.array([range(v.shape[0])]).T, 1, v.shape[1]).flatten()
-      q = T1[:,2]@np.ones([1,v.shape[0]*v.shape[1]])
+      x = np.asarray([T1[:,0]]).T@np.asarray([np.tile(range(v.shape[1]), (v.shape[0], 1)).flatten()]) 
+      y = np.asarray([T1[:,1]]).T@np.asarray([np.tile(np.array([range(v.shape[0])]).T, (1, v.shape[1])).flatten()])
+      q = np.asarray([T1[:,2]]).T@np.ones((1,v.shape[0]*v.shape[1]))
       x = x + y + q
-      v1 = vintr(x[1,:], x[0,:]).reshape(v.shape)
+      v1=np.zeros(v.shape[0]*v.shape[1])
+      for u2 in range(0,v.shape[0]*v.shape[1]):
+        v1[u2]=vintr(x[1,u2], x[0,u2])
+      v1 = v1.reshape(v.shape)
+      print(v1.shape)
       plt.imshow(v1, norm=colr.Normalize().autoscale(v1));
-      plt.pause()
+      plt.show()
+      # plt.pause()
 
 # TransformDeriv(T,u,la,lb,Tla,Tlb,CovInvU,CovInvV,Vinterp,gradVx,gradVy)
     
-    Tn = TransformDeriv(T, u, P1.astype(np.int16), P2.astype(np.int16),L1,L2, 50, 50, vintr, gradV[1], gradV[0])  
+    Tn = TransformDeriv(T, u, P1.astype(np.int16), P2.astype(np.int16),L1,L2, 100, 100, vintr, gradV[1], gradV[0])  
     # print(Tn)
     T[0, :] = T[0, :] + (alp* Tn[0,:])
     T[1, :] = T[1, :] + (alp* Tn[1,:])

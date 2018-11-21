@@ -53,15 +53,25 @@ def TransformDeriv(T,u,la,lb,Tla,Tlb,CovInvU,CovInvV,Vinterp,gradVx,gradVy):
 	dTa=dTa.flatten().reshape(Na,6).T.reshape(6,Na,1) # reshape to Nax6 and then again reshape to make dT along depth
 	dTa=np.tile(dTa,(1,1,Nb))
 	dTb=dTb.flatten().reshape(Nb,6).T.reshape(6,1,Nb)
+	# print(dTb)
 	dTb=np.tile(dTb,(1,Na,1))
+	# print(dTb)
 	deriv=dTb - dTa # derivative of vi-vj in each cell with 6 elements along the depth i vary along rows j along columns
+	# print(Ua)
+	# print(Va)
 	Wa = np.stack((Ua,Va))
+	# print(Wa)
 	Wb = np.stack((Ub,Vb))
 	ex=Wb-Wa
+	# print(Wa - Wb)
 	CovUV=np.tile(np.array([CovInvU,CovInvV]).reshape(2,1,1),np.shape(Ua))
+	# print(ex*ex*CovUV)
 	G1=np.exp((-1/2)*(Vb-Va)*(Vb-Va)*CovInvV)
+	# print(G1)
 	G1=G1/np.sum(G1,0) # W_v(v_i,v_j)*
 	G2=np.exp((-1/2)*np.sum(ex*ex*CovUV,0))
+	# print(G2)
+	G2=G2/np.sum(G2,0) # W_v(v_i,v_j)*
 	# deriv=np.array()
 	p=(G1*CovInvV-G2*CovInvV)*(Vb-Va)*deriv
 	return np.sum(p,(1,2)).reshape(2,3)/Nb
