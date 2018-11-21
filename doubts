@@ -1,0 +1,4 @@
+1 What is the guarantee that if the T intially doesn't cause enough overlap, then the u and v will try to go to the global maxima and not to some local maxima causing them to seperate even further ?
+2 On digitization derivative of v is used when v(T(x)) is used but if we swap u and v images, there might be difficulty in alignment, Ideally v should be inherently hazier image ?
+3 How susceptible is this method to noise ? since we don't know sensitivity of mutual information to noise.
+3 Estimating mutual information for feature selection in the presence of label noise, Gauthier doquire, Michel Verleysen, Benoit frenay
