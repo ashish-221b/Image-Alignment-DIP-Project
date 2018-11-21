@@ -1,39 +1,50 @@
 import numpy as np
-# def interp(v,x,y):
-# 	xb=False
-# 	yb=False
-# 	if(np.ceil(x)-x<5e-2):
-# 		xb=True
-# 		x=int(np.ceil(x))
-# 	elif(x-np.floor(x)<5e-2):
-# 		xb=True
-# 		x=int(np.floor(x))
-# 	if(np.ceil(y)-y<5e-2):
-# 		yb=True
-# 		y=int(np.ceil(y))
-# 	elif(y-np.floor(y)<5e-2):
-# 		yb=True
-# 		y=int(np.floor(y))
-# 	if(yb&&xb):
-# 		return v[x,y]
-# 	elif(yb):
-# 		xc=(np.ceil(x)-x)
-# 		return (xc*v[int(np.floor(x))])
-def TransformDeriv(T,u,v,la,lb,CovInvU,CovInvV):
-	Va=np.zeros((len(la),1))
-	Vb=np.zeros((1,len(lb)))
-	Ua=np.zeros((len(la),1))
-	Ub=np.zeros((1,len(lb)))
-	for x in range(0,len(la)):
-		Va[x,0] = v[la[x][0],la[x][1]]
-		Ua[x,0] = u[la[x][0],la[x][1]]
-	for x in range(0,len(lb)):
-		Vb[0,x] = v[lb[x][0],lb[x][1]]
-		Ub[0,x] = u[lb[x][0],lb[x][1]]
-	Va=np.tile(Va,(1,len(lb)))
-	Vb=np.tile(Vb,(len(la),1))
-	Ua=np.tile(Ua,(1,len(lb)))
-	Ub=np.tile(Ub,(len(la),1))
+from scipy import interpolate
+# T => 3x3 transform matrix
+# u => first image
+# la => coordinates for parzen window 2xNa
+# lb => coordinates for entropy calculation 2xNb
+# Tla => coordinates for parzen window 2xNa
+# Tlb => coordinates for entropy calculation 2xNb
+# CovInvU => float
+# CovInvV => float
+# Vinterp => interpolate object for v
+# gradVx => interpolate object gradient along x for matrix v
+# gradVy => interpolate object gradient along y for matrix v
+def TransformDeriv(T,u,la,lb,CovInvU,CovInvV,Vinterp,gradVx,gradVy):
+	Na = np.shape(la)[1]
+	Nb = np.shape(lb)[1]
+	Va=np.zeros((Na,1))
+	Vb=np.zeros((1,Nb))
+	dVa=np.zeros((2,Na))
+	dVb=np.zeros((2,Nb))
+	Ua=np.zeros((Na,1))
+	Ub=np.zeros((1,Nb))
+	for x in range(0,Na):
+		Va[x,0] = Vinterp(Tla[0][x],Tla[1][x])
+		dVa[0,x] = gradVx(Tla[0][x],Tla[1][x])
+		dVa[1,x] = gradVy(Tla[0][x],Tla[1][x])
+		Ua[x,0] = u[la[0][x],la[1][x]]
+	for x in range(0,Nb):
+		Vb[0,x] = Vinterp(Tlb[0][x],Tlb[1][x])
+		dVb[0,x] = gradVx(Tla[0][x],Tla[1][x])
+		dVb[1,x] = gradVy(Tla[0][x],Tla[1][x])
+		Ub[0,x] = u[lb[0][x],lb[1][x]]
+	Va=np.tile(Va,(1,Nb))
+	Vb=np.tile(Vb,(Na,1))
+	Ua=np.tile(Ua,(1,Nb))
+	Ub=np.tile(Ub,(Na,1))
+	dVa=dVa.reshape(Na,2,1)
+	dVb=dVb.reshape(Nb,2,1)
+	xTa = Tla.reshape(Na,1,3)
+	xTb = Tlb.reshape(Nb,1,3)
+	dTa=dVa@xTa
+	dTb=dVb@xTb
+	dTa=dTa.flatten().reshape(Na,6).T.reshape(6,Na,1)
+	dTa=np.tile(dTa,(1,1,Nb))
+	dTb=dTb.flatten().reshape(Nb,6).T.reshape(6,1,Nb)
+	dTb=np.tile(dTb,(1,Na,1))
+	deriv=dTb - dTa
 	Wa = np.stack((Ua,Va))
 	Wb = np.stack((Ub,Vb))
 	ex=Wb-Wa
@@ -41,16 +52,16 @@ def TransformDeriv(T,u,v,la,lb,CovInvU,CovInvV):
 	G1=np.exp((Vb-Va)*(Vb-Va)*CovInvV)
 	G1=G1/np.sum(G1,0)
 	G2=np.exp(np.sum(ex*ex*CovUV,0))
-	deriv=np.ones((len(la),len(lb)))
+	# deriv=np.array()
 	p=(G1-G2)*(Vb-Va)*deriv
-	np.sum(p)
-v = np.arange(10000).reshape(100,100)/1000
-u=v*2
-# print(v)
-la=[[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2]]
-lb=[[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0]]
-T=np.zeros(9).reshape(3,3)
-print(len(lb))
-for x in range(1,1000):
-	print(x)
-	TransformDeriv(T,u,v,la,lb,.03,.03)
+	return np.sum(p,(1,2)).reshape(2,3)
+# v = np.arange(10000).reshape(100,100)/1000
+# u=v*2
+# # print(v)
+# la=[[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2]]
+# lb=[[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0]]
+# T=np.zeros(9).reshape(3,3)
+# print(len(lb))
+# for x in range(1,1000):
+# 	print(x)
+# 	TransformDeriv(T,u,v,la,lb,.03,.03)
