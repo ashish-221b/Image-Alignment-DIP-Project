@@ -21,15 +21,15 @@ def TransformDeriv(T,u,la,lb,CovInvU,CovInvV,Vinterp,gradVx,gradVy):
 	Ua=np.zeros((Na,1))
 	Ub=np.zeros((1,Nb))
 	for x in range(0,Na):
-		Va[x,0] = Vinterp(Tla[0][x],Tla[1][x])
-		dVa[0,x] = gradVx(Tla[0][x],Tla[1][x])
-		dVa[1,x] = gradVy(Tla[0][x],Tla[1][x])
-		Ua[x,0] = u[la[0][x],la[1][x]]
+		Va[x,0] = Vinterp(Tla[1][x],Tla[0][x])
+		dVa[0,x] = gradVx(Tla[1][x],Tla[0][x])
+		dVa[1,x] = gradVy(Tla[1][x],Tla[0][x])
+		Ua[x,0] = u[la[1][x],la[0][x]]
 	for x in range(0,Nb):
-		Vb[0,x] = Vinterp(Tlb[0][x],Tlb[1][x])
-		dVb[0,x] = gradVx(Tla[0][x],Tla[1][x])
-		dVb[1,x] = gradVy(Tla[0][x],Tla[1][x])
-		Ub[0,x] = u[lb[0][x],lb[1][x]]
+		Vb[0,x] = Vinterp(Tlb[1][x],Tlb[0][x])
+		dVb[0,x] = gradVx(Tla[1][x],Tla[0][x])
+		dVb[1,x] = gradVy(Tla[1][x],Tla[0][x])
+		Ub[0,x] = u[lb[1][x],lb[0][x]]
 	Va=np.tile(Va,(1,Nb)) # replicate columns of Va to make it NaxNb
 	Vb=np.tile(Vb,(Na,1)) # replicate rows of Vb to make it NaxNb
 	Ua=np.tile(Ua,(1,Nb)) # same as V
@@ -55,13 +55,3 @@ def TransformDeriv(T,u,la,lb,CovInvU,CovInvV,Vinterp,gradVx,gradVy):
 	# deriv=np.array()
 	p=(G1*CovInvV-G2*CovInvV)*(Vb-Va)*deriv
 	return np.sum(p,(1,2)).reshape(2,3)
-# v = np.arange(10000).reshape(100,100)/1000
-# u=v*2
-# # print(v)
-# la=[[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2],[2,3],[1,4],[0,2]]
-# lb=[[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0],[4,1],[2,0]]
-# T=np.zeros(9).reshape(3,3)
-# print(len(lb))
-# for x in range(1,1000):
-# 	print(x)
-# 	TransformDeriv(T,u,v,la,lb,.03,.03)
