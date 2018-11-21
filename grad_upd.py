@@ -32,6 +32,8 @@ def TransformDeriv(T,u,la,lb,Tla,Tlb,CovInvU,CovInvV,Vinterp,gradVx,gradVy):
 		dVb[0,x] = gradVx(Tlb[1,x],Tlb[0,x])
 		dVb[1,x] = gradVy(Tlb[1,x],Tlb[0,x])
 		Ub[0,x] = u[lb[1,x],lb[0,x]]
+	# print(Va)
+	# print(Ua)
 	Va=np.tile(Va,(1,Nb)) # replicate columns of Va to make it NaxNb
 	# print(Va)
 	Vb=np.tile(Vb,(Na,1)) # replicate rows of Vb to make it NaxNb
