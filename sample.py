@@ -2,7 +2,9 @@ import numpy as np
 from PIL import Image
 from interp import interpolation
 from grad_upd import TransformDeriv 
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+import matplotlib.colors as colr
+
 __debug = False
 # x     : a vector of xs; homogenious coordinates; dim(3xN)
 # T     : transform matrix from P^3 -> P^3
@@ -68,8 +70,16 @@ def get_transform( u1, v1, n, t, alp) :
       z = P2.shape[1]
     P2 = P2[:,:t] 
     L2 = L2[:,:t]
-    if __debug :
-      print(T)
+    if i%50==49 :
+      # print(T)
+      T1 = np.linalg.inv(T)
+      x = T1[:,0]@np.tile(range(v.shape[1]), v.shape[0], 1).flatten() 
+      y = T1[:,1]@np.tile(np.array([range(v.shape[0])]).T, 1, v.shape[1]).flatten()
+      q = T1[:,2]@np.ones([1,v.shape[0]*v.shape[1]])
+      x = x + y + q
+      v1 = vintr(x[1,:], x[0,:]).reshape(v.shape)
+      plt.imshow(v1, norm=colr.Normalize().autoscale(v1));
+      plt.pause()
 
 # TransformDeriv(T,u,la,lb,Tla,Tlb,CovInvU,CovInvV,Vinterp,gradVx,gradVy)
     
