@@ -11,7 +11,7 @@ from scipy import interpolate
 # Vinterp => interpolate object for v
 # gradVx => interpolate object gradient along x for matrix v
 # gradVy => interpolate object gradient along y for matrix v
-def TransformDeriv(T,u,la,lb,Tla,Tlb,CovInvU,CovInvV,Vinterp,gradVx,gradVy):
+def TransformDeriv(T,u,v,la,lb,Tla,Tlb,CovInvU,CovInvV,Vinterp,gradVx,gradVy):
 	Na = np.shape(la)[1]
 	Nb = np.shape(lb)[1]
 	# print(Na)
@@ -46,13 +46,16 @@ def TransformDeriv(T,u,la,lb,Tla,Tlb,CovInvU,CovInvV,Vinterp,gradVx,gradVy):
 	# print(dVa)
 	dVb=dVb.T.reshape(Nb,2,1) # make the gradient 2x1 with depth Nb
 	# print(dVa)
-	xTa = Tla.T.reshape(Na,1,3) # make the x' 1x3 with depth Na
+	vseg = np.array([[v.shape[1]/2.0, v.shape[0]/2.0, 0]]).T
+	xTa = (Tla - np.tile(vseg, [1, Na])).T.reshape(Na,1,3)# make the x' 1x3 with depth Na
 	# print(xTa)
-	xTb = Tlb.T.reshape(Nb,1,3) # make the x' 1x3 with depth Nb
+	xTb = (Tlb - np.tile(vseg, [1, Nb])).T.reshape(Nb,1,3) # make the x' 1x3 with depth Nb
 	# print(xTb)
 	dTa=dVa@xTa # each gradient vector is multiplied with x' resulting in 2x3 matrix with depth Na
+	# print(dTa)
 	dTb=dVb@xTb # each gradient vector is multiplied with x' resulting in 2x3 matrix with depth Nb
 	dTa=dTa.flatten().reshape(Na,6).T.reshape(6,Na,1) # reshape to Nax6 and then again reshape to make dT along depth
+	# print(dTa)
 	dTa=np.tile(dTa,(1,1,Nb))
 	dTb=dTb.flatten().reshape(Nb,6).T.reshape(6,1,Nb)
 	# print(dTb)
@@ -76,4 +79,6 @@ def TransformDeriv(T,u,la,lb,Tla,Tlb,CovInvU,CovInvV,Vinterp,gradVx,gradVy):
 	G2=G2/np.sum(G2,0) # W_v(v_i,v_j)*
 	# deriv=np.array()
 	p=(G1*CovInvV-G2*CovInvV)*(Vb-Va)*deriv
+	# print(p)
+	# print(np.sum(p,(1,2)))
 	return np.sum(p,(1,2)).reshape(2,3)/Nb
