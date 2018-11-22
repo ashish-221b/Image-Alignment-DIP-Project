@@ -128,10 +128,9 @@ y = np.matmul(np.asarray([t1[:,1]]).T,np.asarray([np.tile(np.array([range(u.shap
 q = np.matmul(np.asarray([t1[:,2]]).T,np.ones((1,u.shape[0]*u.shape[1])))
 x = x + y + q + np.tile(np.array([[v.shape[1]/2.0, v.shape[0]/2.0, 0]]).T, [1,u.shape[0]*u.shape[1]])
 v1=np.zeros(u.shape[0]*u.shape[1])
-for u2 in range(0,v.shape[0]*v.shape[1]):
+for u2 in range(0,u.shape[0]*u.shape[1]):
   v1[u2]=vintr(x[1,u2], x[0,u2])
-v1 = v1.reshape(v.shape)
-print(v1.shape)
+v1 = v1.reshape(u.shape)
 plt.imshow(v1,cmap='gray');
 plt.show()
 # print(MI)
