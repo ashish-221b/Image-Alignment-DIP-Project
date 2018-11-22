@@ -50,6 +50,7 @@ def pointFilt(t,points,C1,C2):
 
 if( len(sys.argv) != 3) :
 	print("usage: <" + sys.argv[0] + "> image_1 image_2\n")
+	exit(1)
 im_1 = sys.argv[1]
 im_2 = sys.argv[2]
 
